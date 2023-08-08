@@ -10,6 +10,7 @@ public static class ReverseProxyCacheServiceExtensions
         services.AddSingleton<LiteDbContext>();
         services.AddTransient<HttpCacheService>();
         services.AddTransient<LocalFileService>();
+        services.AddSingleton<ReverseProxyOptionService>();
 
         return services;
     }

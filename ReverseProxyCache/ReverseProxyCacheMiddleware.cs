@@ -11,6 +11,7 @@ public class ReverseProxyCacheMiddleware
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly LocalFileService _fileService;
     private readonly HttpCacheService _httpCacheService;
+    private readonly ReverseProxyOptionService _optionService;
     private readonly ILogger<ReverseProxyCacheMiddleware> _logger;
 
     public ReverseProxyCacheMiddleware(
@@ -18,22 +19,27 @@ public class ReverseProxyCacheMiddleware
         IHttpClientFactory httpClientFactory,
         LocalFileService fileService,
         HttpCacheService httpCacheService,
+        ReverseProxyOptionService optionService,
         ILogger<ReverseProxyCacheMiddleware> logger)
     {
         _next = next;
         _httpClientFactory = httpClientFactory;
         _fileService = fileService;
         _httpCacheService = httpCacheService;
+        _optionService = optionService;
         _logger = logger;
     }
 
     public async Task InvokeAsync(HttpContext context)
     {
         var path = context.Request.Path.ToString();
-        if (path.StartsWith("/blog/"))
+        foreach (ReverseProxyOptions option in _optionService.Options)
         {
-            await ReverseProxy("https://jackfiled.github.io", path, context);
-            return;
+            if (path.StartsWith(option.Router))
+            {
+                await ReverseProxy(option.Baseurl, path, context);
+                return;
+            }
         }
         
         await _next(context);
