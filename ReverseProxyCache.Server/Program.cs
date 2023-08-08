@@ -7,6 +7,7 @@ builder.Services.AddReverseProxyCache();
 WebApplication app = builder.Build();
 
 app.UseReverseProxyCache();
+app.UseReverseProxyRefresh();
 
 app.MapGet("/", () => "Hello World!");
 
