@@ -4,6 +4,10 @@
     <ProjectReference Include="..\ReverseProxyCache\ReverseProxyCache.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="ReverseProxyCache\" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
