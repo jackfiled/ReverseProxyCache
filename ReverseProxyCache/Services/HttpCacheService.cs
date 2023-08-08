@@ -18,6 +18,11 @@ public class HttpCacheService
         return _collection.FindOne(Query.EQ("Path", path));
     }
 
+    public IEnumerable<HttpCache> GetCaches()
+    {
+        return _collection.FindAll();
+    }
+
     public void InsertCache(HttpCache cache)
     {
         _collection.Insert(cache);
@@ -26,6 +31,11 @@ public class HttpCacheService
     public void UpdateCache(HttpCache cache)
     {
         _collection.Update(cache);
+    }
+
+    public void DeleteCache()
+    {
+        _collection.DeleteAll();
     }
 
     public void DeleteCache(int id)

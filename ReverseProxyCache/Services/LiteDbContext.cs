@@ -9,7 +9,7 @@ public class LiteDbContext
 
     public LiteDbContext(IConfiguration configuration)
     {
-        string path = configuration["ReverseProxyPath:Database"] ?? "lite.db";
+        string path = configuration["ReverseProxyCache:Database"] ?? "lite.db";
         path = Path.Join(Environment.CurrentDirectory, path);
 
         Database = new LiteDatabase(path);
