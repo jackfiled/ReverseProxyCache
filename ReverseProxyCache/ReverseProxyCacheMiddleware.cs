@@ -37,7 +37,7 @@ public class ReverseProxyCacheMiddleware
         {
             if (path.StartsWith(option.Router))
             {
-                await ReverseProxy(option.Baseurl, path, context);
+                await ReverseProxy(option.Baseurl, path, option.Router, context);
                 return;
             }
         }
@@ -45,7 +45,7 @@ public class ReverseProxyCacheMiddleware
         await _next(context);
     }
 
-    private async Task ReverseProxy(string baseurl, string path, HttpContext context)
+    private async Task ReverseProxy(string baseurl, string path, string router, HttpContext context)
     {
         Stream? stream = _fileService.ReadFile(path);
         if (stream != null)
@@ -77,7 +77,7 @@ public class ReverseProxyCacheMiddleware
             ContentType = message.Content.Headers.ContentType?.ToString(),
             Path = path,
             RefreshTime = DateTime.Now,
-            Baseurl = baseurl
+            Router = router
         };
         _httpCacheService.InsertCache(newCache);
     }

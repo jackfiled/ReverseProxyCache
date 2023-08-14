@@ -13,7 +13,6 @@ public class ReverseProxyRefreshMiddleware
     private readonly LiteDbContext _context;
     private readonly ReverseProxyOptionService _optionService;
 
-
     public ReverseProxyRefreshMiddleware(RequestDelegate next,
         ILogger<ReverseProxyRefreshMiddleware> logger,
         LiteDbContext context,
@@ -41,28 +40,28 @@ public class ReverseProxyRefreshMiddleware
             
             _logger.LogInformation("Receive Refresh request: {}", request);
 
-            string? baseurl = null;
+            string? router = null;
             foreach (ReverseProxyOptions option in _optionService.Options)
             {
                 if (option.Router.Contains(request))
                 {
-                    baseurl = option.Baseurl;
+                    router = option.Router;
                     break;
                 }
             }
 
             context.Response.ContentType = "text/plain";
 
-            if (baseurl == null)
+            if (router == null)
             {
                 context.Response.StatusCode = 400;
                 await context.Response.WriteAsync($"Unknown request: {request}.");
             }
             else
             {
-                _logger.LogInformation("Delete cache for {}.", request);
+                _logger.LogInformation("Delete cache for {}.", router);
                 
-                CleanCache(baseurl);
+                CleanCache(router);
                 context.Response.StatusCode = 200;
                 await context.Response.WriteAsync("Clean Successfully!");
             }
@@ -73,12 +72,12 @@ public class ReverseProxyRefreshMiddleware
         await _next(context);
     }
 
-    private void CleanCache(string baseurl)
+    private void CleanCache(string router)
     {
-        ILiteCollection<HttpCache> collection = _context.Database.GetCollection<HttpCache>();
-        collection.EnsureIndex(x => x.Baseurl);
+        ILiteCollection<HttpCache> collection = _context.Database.GetCollection<HttpCache>("cache");
+        collection.EnsureIndex(x => x.Router);
 
-        var caches = collection.Find(Query.EQ("Baseurl", baseurl));
+        var caches = collection.Find(Query.EQ("Router", router));
 
         foreach (HttpCache cache in caches)
         {
@@ -86,6 +85,6 @@ public class ReverseProxyRefreshMiddleware
             _context.Database.FileStorage.Delete(path);
         }
 
-        collection.DeleteMany(Query.EQ("Baseurl", baseurl));
+        collection.DeleteMany(Query.EQ("Router", router));
     }
 }
